@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+//提醒:选中变量或函数名或类名按F2可以批量重命名整个工程涉及的地方.
+
 //如果你发现VS提示你缺少引用,但是确实存在那个引用时,请删除引用,然后重新添加引用.
 namespace SevenDayKillModDevelopmentTemplate
 {
@@ -86,12 +88,16 @@ namespace SevenDayKillModDevelopmentTemplate
             //判断是否按下该按键,按下时会一直执行
             if (Input.GetKeyDown(k1))
             {
+                //在控制台输出文本  这个只是例子,可以删除
+                "Hello World 111".Log();
                 //逻辑
             }
 
             //按下时执行,只执行1次
             if (Input.GetKey(k1))
             {
+                //在控制台输出文本  这个只是例子,可以删除
+                "Hello World 222".Log();
                 //逻辑
             }
 

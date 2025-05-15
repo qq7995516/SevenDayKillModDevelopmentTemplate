@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace SevenDayKillModDevelopmentTemplate
 {
@@ -41,5 +42,6 @@ namespace SevenDayKillModDevelopmentTemplate
         /// <returns></returns>
         public static T JsonToObject<T>(this string JsonStr) => JsonConvert.DeserializeObject<T>(JsonStr);
 
+        public static void Log<T>(this T t) => Debug.Log(t);
     }
 }
