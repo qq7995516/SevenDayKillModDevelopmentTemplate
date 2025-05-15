@@ -9,44 +9,78 @@ using UnityEngine;
 
 namespace SevenDayKillModDevelopmentTemplate
 {
+    /// <summary>
+    /// 该类是Mod的主类,必须继承IModApi接口
+    /// </summary>
     public class ModTemplate : IModApi
     {
-        //创建Mod文件夹路径
+        /// <summary>
+        /// 该Mod所在的文件夹的路径
+        /// </summary>
         public static DirectoryInfo Mod = new DirectoryInfo(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+        /// <summary>
+        /// 配置文件路径,用于存放Mod配置
+        /// </summary>
         public static string ConfigPath = $"{Mod.FullName}/config.json";
+        /// <summary>
+        /// 键位参考文件,用于存放键位参考,给用户查看键位的.
+        /// </summary>
         public static string KeyPath = $"{Mod.FullName}/key.txt";
+        /// <summary>
+        /// 保存配置的对象
+        /// </summary>
         public static SaveConfig saveConfig = null;
+        /// <summary>
+        /// 临时按键
+        /// </summary>
         private KeyCode k1;
 
+        /// <summary>
+        /// Mod初始化函数,在游戏加载时调用,该函数只会被调用一次,必须要有该函数,且函数名以及函数签名不能更改
+        /// </summary>
+        /// <param name="_modInstance"></param>
         void IModApi.InitMod(Mod _modInstance)
         {
-
+            //尝试创建配置文件
             ConfigPath.TryCreateAndWriteFile(Tool.ToJson(new SaveConfig()));
+            //尝试创建键位参考文件
             KeyPath.TryCreateAndWriteFile(string.Join(Environment.NewLine, Enum.GetNames(typeof(KeyCode))
                             .Zip(Enum.GetValues(typeof(KeyCode)).Cast<int>(), (name, value) => $"{name}:{value}")));
             //读取保存的数据
             saveConfig = Tool.JsonToObject<SaveConfig>(File.ReadAllText($"{Mod.FullName}/config.json"));
-            // 初始化Harmony实例
+
+            // 初始化Harmony实例 这个对象的功能是把你编写的函数粘到目标函数上,当然覆盖目标函数也可以
             var harmony = new Harmony(Path.GetRandomFileName());
-            //应用
-            //前置
-            //harmony.Patch(typeof().GetMethod(""),
+
+            //应用补丁
+            //前置    原函数执行前就执行,如果你的函数返回了false,则不执行原函数,也就是覆盖
+            //harmony.Patch(typeof(目标函数所在的类).GetMethod("目标函数"),
             //    prefix: new HarmonyMethod(typeof(PatchType), nameof(PatchType)));
-            ////后置
-            //harmony.Patch(typeof().GetMethod(""),
+            //说明例子
+            //harmony.Patch(typeof(目标函数所在的类).GetMethod("目标函数"),
+            //    prefix: new HarmonyMethod(typeof(你的函数所在的类), nameof(你的函数的函数名)));
+
+            ////后置  原函数执行后才执行
+            //harmony.Patch(typeof(目标函数所在的类).GetMethod("目标函数"),
             //   postfix: new HarmonyMethod(typeof(PatchType), nameof(PatchType)));
+            //说明例子,同上
 
+            //游戏内的UI窗口
+            //GameManager.Instance.m_GUIConsole.windowManager.playerUI.xui
 
-            ModEvents.GameUpdate.RegisterHandler(new Action(this.OnGameUpdate));
+            //把你编写的函数注册到游戏更新事件上,每次游戏轮询都会调用这个函数
+            ModEvents.GameUpdate.RegisterHandler(叫什么名称都可以);
 
+            //从配置文件中读取目标按键
             k1 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.Mouse2}").Value;
         }
 
-        private void OnGameUpdate()
+        private void 叫什么名称都可以()
         {
+            //判断是否按下该按键
             if (Input.GetKeyDown(k1))
             {
-
+                //编写你要执行的逻辑
             }
         }
 
