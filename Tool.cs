@@ -42,6 +42,45 @@ namespace SevenDayKillModDevelopmentTemplate
         /// <returns></returns>
         public static T JsonToObject<T>(this string JsonStr) => JsonConvert.DeserializeObject<T>(JsonStr);
 
+        /// <summary>
+        /// 在控制台打印日志
+        /// </summary>
+        /// <typeparam name="T">对象,一般为string,如果不是string则会调用对象的ToString()</typeparam>
+        /// <param name="t"></param>
         public static void Log<T>(this T t) => Debug.Log(t);
+
+        /// <summary>
+        /// 根据id查找实体
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static Entity GetEntity(this int id) =>
+             GameManager.Instance.World.GetEntity(id);
+
+        /// <summary>
+        /// 根据名称查找实体
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static Entity FindEntity(this string name) =>
+            GameManager.Instance.World.Entities.list.Find(d => d.name == name);
+
+        /// <summary>
+        /// 获取所有实体
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static List<Entity> GetEntitieALL() =>
+            GameManager.Instance.World.Entities.list;
+
+        /// <summary>
+        /// 获取本地玩家
+        /// </summary>
+        /// <returns></returns>
+        public static EntityPlayerLocal GetlocalPlayer()
+        {
+            return GameManager.Instance?.World?.GetPrimaryPlayer();
+        }
+
     }
 }
