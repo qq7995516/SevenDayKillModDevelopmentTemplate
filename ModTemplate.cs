@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+//如果你发现VS提示你缺少引用,但是确实存在那个引用时,请删除引用,然后重新添加引用.
 namespace SevenDayKillModDevelopmentTemplate
 {
     /// <summary>
