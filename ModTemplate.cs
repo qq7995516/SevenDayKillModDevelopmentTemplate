@@ -7,6 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+//编写好代码之后点击生成->重新生成解决方案,然后再打开项目文件所在的文件夹,
+
+//通常在 SevenDayKillModDevelopmentTemplate\bin\Debug 文件夹下可以找到 SevenDayKillModDevelopmentTemplate.dll 把文件复制到一个新建文件夹里,
+
+//然后..去看Github里面这个项目的说明吧,跟着说明来操作就行了.   给VS新手看的
+
+//项目链接:https://github.com/qq7995516/SevenDayKillModDevelopmentTemplate
+
 //提醒:选中变量或函数名或类名再按F2可以批量重命名整个工程涉及的地方.   给VS新手看的
 
 //如果你发现VS提示你缺少引用,但是确实存在那个引用时,请删除引用,然后重新添加引用.
