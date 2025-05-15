@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-//提醒:选中变量或函数名或类名按F2可以批量重命名整个工程涉及的地方.
+//提醒:选中变量或函数名或类名再按F2可以批量重命名整个工程涉及的地方.
 
 //如果你发现VS提示你缺少引用,但是确实存在那个引用时,请删除引用,然后重新添加引用.
 namespace SevenDayKillModDevelopmentTemplate
