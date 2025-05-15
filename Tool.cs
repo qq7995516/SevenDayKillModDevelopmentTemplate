@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace SevenDayKillModDevelopmentTemplate
 {
+    /// <summary>
+    /// 工具类,把一些常用的函数放在这里,方便调用
+    /// </summary>
     public static class Tool
     {
 
@@ -23,7 +26,6 @@ namespace SevenDayKillModDevelopmentTemplate
             return new FileInfo(path);
         }
 
-
         /// <summary>
         /// 把对象转为Json字符串
         /// </summary>
@@ -38,5 +40,6 @@ namespace SevenDayKillModDevelopmentTemplate
         /// <typeparam name="T">类型</typeparam>
         /// <returns></returns>
         public static T JsonToObject<T>(this string JsonStr) => JsonConvert.DeserializeObject<T>(JsonStr);
+
     }
 }
