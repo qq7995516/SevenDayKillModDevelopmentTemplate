@@ -75,13 +75,25 @@ namespace SevenDayKillModDevelopmentTemplate
             k1 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.Mouse2}").Value;
         }
 
+        /// <summary>
+        /// 这个函数会一直执行,所以如果有些功能只需要偶尔执行需要添加执行条件.
+        /// 不要随便往这里面加东西,非常容易让游戏卡顿.
+        /// </summary>
         private void 叫什么名称都可以()
         {
-            //判断是否按下该按键
+            //判断是否按下该按键,按下时会一直执行
             if (Input.GetKeyDown(k1))
             {
-                //编写你要执行的逻辑
+                //逻辑
             }
+
+            //按下时执行,只执行1次
+            if (Input.GetKey(k1))
+            {
+                //逻辑
+            }
+
+            //逻辑...
         }
 
     }
