@@ -51,6 +51,7 @@ namespace SevenDayKillModDevelopmentTemplate
             saveConfig = Tool.JsonToObject<SaveConfig>(File.ReadAllText($"{Mod.FullName}/config.json"));
 
             // 初始化Harmony实例 这个对象的功能是把你编写的函数粘到目标函数上,当然覆盖目标函数也可以
+            //参数是Harmony的编号,可以随便写,但是不能重复,如果你有多个补丁,可以把它们放在同一个Harmony实例上
             var harmony = new Harmony(Path.GetRandomFileName());
 
             //应用补丁
