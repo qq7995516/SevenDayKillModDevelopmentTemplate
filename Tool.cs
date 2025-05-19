@@ -75,11 +75,12 @@ namespace SevenDayKillModDevelopmentTemplate
 
         /// <summary>
         /// 根据名称查找实体
+        /// 会返回所有包含该名称的实体,如果有多个实体
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static Entity FindEntity(this string name) =>
-            GameManager.Instance.World.Entities.list.Find(d => d.name == name);
+        public static List<Entity> FindEntity(this string name) =>
+            GameManager.Instance.World.Entities.list.Where(d => d.name.Contains(name)).ToList();
 
         /// <summary>
         /// 获取所有实体
