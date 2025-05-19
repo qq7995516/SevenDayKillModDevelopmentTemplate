@@ -28,6 +28,22 @@ namespace SevenDayKillModDevelopmentTemplate
         }
 
         /// <summary>
+        /// 尝试添加一个键值对到列表中
+        /// </summary>
+        /// <param name="myKeyValues"></param>
+        /// <param name="myKeyValue"></param>
+        /// <returns>添加成功会返回true</returns>
+        public static bool TryAddItem<T>(this List<MyKV<string, T>> myKeyValues, MyKV<string, T> myKeyValue)
+        {
+            if (myKeyValues == null || myKeyValue == null)
+                return false;
+            if (myKeyValues.Any(d => d.Key == myKeyValue.Key))
+                return false;
+            myKeyValues.Add(new MyKV<string, T>(myKeyValue.Key, myKeyValue.Value));
+            return true;
+        }
+
+        /// <summary>
         /// 把对象转为Json字符串
         /// </summary>
         /// <typeparam name="T"> 类型</typeparam>
