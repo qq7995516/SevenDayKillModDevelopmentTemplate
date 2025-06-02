@@ -16,6 +16,39 @@ namespace SevenDayKillModDevelopmentTemplate
     /// </summary>
     public static class Tool
     {
+
+        /// <summary>
+        /// 尝试添加一个键值对到列表中
+        /// </summary>
+        /// <param name="myKeyValues"></param>
+        /// <param name="myKeyValue"></param>
+        /// <returns>添加成功会返回true</returns>
+        public static bool TryAddItem<T>(this List<MyKV<string, T>> myKeyValues, MyKV<string, T> myKeyValue)
+        {
+            if (myKeyValues == null || myKeyValue == null)
+                return false;
+            if (myKeyValues.Any(d => d.Key == myKeyValue.Key))
+                return false;
+            myKeyValues.Add(new MyKV<string, T>(myKeyValue.Key, myKeyValue.Value));
+            return true;
+        }
+
+        /// <summary>
+        /// 把对象转为Json字符串
+        /// </summary>
+        /// <typeparam name="T"> 类型</typeparam>
+        /// <param name="obj">对象</param>
+        /// <returns></returns>
+        public static string ToJson<T>(this T obj) => JsonConvert.SerializeObject(obj); //转为字节数组
+
+        /// <summary>
+        /// Json字符串转对象
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <returns></returns>
+        public static T JsonToObject<T>(this string JsonStr) => JsonConvert.DeserializeObject<T>(JsonStr);
+
+
         /// <summary>
         /// 尝试创建一个文件并写入文本,文件存在时则不执行
         /// </summary>
@@ -92,37 +125,6 @@ namespace SevenDayKillModDevelopmentTemplate
                 return false;
             }
         }
-
-        /// <summary>
-        /// 尝试添加一个键值对到列表中
-        /// </summary>
-        /// <param name="myKeyValues"></param>
-        /// <param name="myKeyValue"></param>
-        /// <returns>添加成功会返回true</returns>
-        public static bool TryAddItem<T>(this List<MyKV<string, T>> myKeyValues, MyKV<string, T> myKeyValue)
-        {
-            if (myKeyValues == null || myKeyValue == null)
-                return false;
-            if (myKeyValues.Any(d => d.Key == myKeyValue.Key))
-                return false;
-            myKeyValues.Add(new MyKV<string, T>(myKeyValue.Key, myKeyValue.Value));
-            return true;
-        }
-
-        /// <summary>
-        /// 把对象转为Json字符串
-        /// </summary>
-        /// <typeparam name="T"> 类型</typeparam>
-        /// <param name="obj">对象</param>
-        /// <returns></returns>
-        public static string ToJson<T>(this T obj) => JsonConvert.SerializeObject(obj); //转为字节数组
-
-        /// <summary>
-        /// Json字符串转对象
-        /// </summary>
-        /// <typeparam name="T">类型</typeparam>
-        /// <returns></returns>
-        public static T JsonToObject<T>(this string JsonStr) => JsonConvert.DeserializeObject<T>(JsonStr);
 
         /// <summary>
         /// 在控制台打印日志
