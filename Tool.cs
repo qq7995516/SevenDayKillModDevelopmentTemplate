@@ -16,6 +16,37 @@ namespace SevenDayKillModDevelopmentTemplate
     /// </summary>
     public static class Tool
     {
+        /// <summary>
+        /// 获取世界时间
+        /// </summary>
+        /// <returns></returns>
+        public static ulong GetWorldTime() => GameManager.Instance.World.worldTime;
+
+        /// <summary>
+        /// 获取世界天数
+        /// </summary>
+        /// <returns></returns>
+        public static int GetWorldDay() => GameManager.Instance.World.WorldDay;
+
+        /// <summary>
+        /// 获取当前时针位置,返回值为0-23之间的整数
+        /// </summary>
+        /// <returns></returns>
+        public static int GetWorldHour() => GameManager.Instance.World.WorldHour;
+
+        /// <summary>
+        /// 检查当前是否处于血月状态
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsBloodMoon() => GameManager.Instance.World.isEventBloodMoon;
+
+        /// <summary>
+        /// 检查当前是否白天
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsDayTime() => GameManager.Instance.World.IsDaytime();
+
+
 
         /// <summary>
         /// 尝试添加一个键值对到列表中
