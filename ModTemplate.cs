@@ -45,6 +45,18 @@ namespace SevenDayKillModDevelopmentTemplate
         /// 临时按键
         /// </summary>
         private KeyCode k1;
+        /// <summary>
+        /// 用于存放自定义窗口的对象,如果不需要自定义窗口可以删除这个变量和相关代码
+        /// </summary>
+        private Tool.MyCustomWindow myPopupWindow;
+        /// <summary>
+        /// 显示自定义窗口的按键,如果不需要自定义窗口可以删除这个变量和相关代码
+        /// </summary>
+        public KeyCode toggleWindowKey = default; // 定义切换窗口的按键，可以按需修改
+        /// <summary>
+        /// 窗口标题
+        /// </summary>
+        public string title = "自定义窗口";
 
         /// <summary>
         /// Mod初始化函数,在游戏加载时调用,该函数只会被调用一次,必须要有该函数,且函数名以及函数签名不能更改
@@ -57,8 +69,11 @@ namespace SevenDayKillModDevelopmentTemplate
             //尝试创建键位参考文件
             KeyPath.TryCreateAndWriteFile(string.Join(Environment.NewLine, Enum.GetNames(typeof(KeyCode))
                             .Zip(Enum.GetValues(typeof(KeyCode)).Cast<int>(), (name, value) => $"{name}:{value}")));
+
             //读取保存的数据
             saveConfig = Tool.JsonToObject<SaveConfig>(File.ReadAllText($"{Mod.FullName}/config.json"));
+            //添加按键
+            saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"窗口按键", KeyCode.F2));
 
             // 初始化Harmony实例 这个对象的功能是把你编写的函数粘到目标函数上,当然覆盖目标函数也可以
             //参数是Harmony的编号,可以随便写,但是不能重复,如果你有多个补丁,可以把它们放在同一个Harmony实例上
@@ -85,6 +100,7 @@ namespace SevenDayKillModDevelopmentTemplate
 
             //从配置文件中读取目标按键
             k1 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.Mouse2}").Value;
+            toggleWindowKey = saveConfig.config5.Find(d => d.Key == $"窗口按键").Value;
         }
 
         /// <summary>
@@ -93,12 +109,26 @@ namespace SevenDayKillModDevelopmentTemplate
         /// </summary>
         private void 叫什么名称都可以()
         {
+            //是否按下了切换窗口的按键,如果不需要自定义窗口可以删除这个判断和相关代码
+            if (Input.GetKey(toggleWindowKey))
+            {
+                //如果窗口不存在,则创建一个新的窗口
+                if (myPopupWindow == null)
+                {
+                    myPopupWindow = new Tool.MyCustomWindow(title: title);
+                    myPopupWindow.IsVisible = true;
+                }
+                else
+                    //显示或隐藏窗口
+                    myPopupWindow.IsVisible = !myPopupWindow.IsVisible;
+            }
+
             //判断是否按下该按键,按下时会一直执行
             if (Input.GetKeyDown(k1))
             {
                 //在控制台输出文本  这个只是例子,可以删除
                 "Hello World 111".Log();
-                //逻辑
+                //其他逻辑
             }
 
             //按下时执行,只执行1次
@@ -106,7 +136,7 @@ namespace SevenDayKillModDevelopmentTemplate
             {
                 //在控制台输出文本  这个只是例子,可以删除
                 "Hello World 222".Log();
-                //逻辑
+                //其他逻辑
             }
 
             //逻辑...
