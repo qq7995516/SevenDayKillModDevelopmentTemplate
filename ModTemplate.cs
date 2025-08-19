@@ -185,14 +185,14 @@ namespace SevenDayKillModDevelopmentTemplate
             // 5. 从该类型中获取名为 "RegisterHandler" 的方法
             var registerHandlerMethod = gameUpdateInstanceType.GetMethod("RegisterHandler");
 
-            // 尝试获取 v2.1+ 的 SGameUpdateData 类型
+            // 尝试获取 v2.0+ 的 SGameUpdateData 类型
             var sGameUpdateDataType = modEventsType.GetNestedType("SGameUpdateData");
 
             Delegate handlerDelegate;
 
             if (sGameUpdateDataType != null)
             {
-                // --- v2.1 或更高版本 ---
+                // --- v2.0 或更高版本 ---
                 // 我们检测到了 SGameUpdateData 类型的存在。
                 // 目标委托签名: void(ref SGameUpdateData)
                 "游戏版本为2.0以上".Log();
