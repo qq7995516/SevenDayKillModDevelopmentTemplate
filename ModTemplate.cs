@@ -3,9 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static ModEvents;
 
 //编写好代码之后点击生成->重新生成解决方案,然后再打开项目文件所在的文件夹,
 
@@ -46,6 +50,11 @@ namespace SevenDayKillModDevelopmentTemplate
         /// </summary>
         private KeyCode k1;
         /// <summary>
+        /// 临时按键
+        /// </summary>
+        private KeyCode F3;
+
+        /// <summary>
         /// 用于存放自定义窗口的对象,如果不需要自定义窗口可以删除这个变量和相关代码
         /// </summary>
         private Tool.MyCustomWindow myPopupWindow;
@@ -67,13 +76,26 @@ namespace SevenDayKillModDevelopmentTemplate
             //尝试创建配置文件
             ConfigPath.TryCreateAndWriteFile(Tool.ToJson(new SaveConfig()));
             //尝试创建键位参考文件
-            KeyPath.TryCreateAndWriteFile(string.Join(Environment.NewLine, Enum.GetNames(typeof(KeyCode))
-                            .Zip(Enum.GetValues(typeof(KeyCode)).Cast<int>(), (name, value) => $"{name}:{value}")));
+            KeyPath.TryCreateAndWriteFile(
+                string.Join(
+                    Environment.NewLine,
+                        Enum.GetNames(typeof(KeyCode)).Zip(
+                                Enum.GetValues(typeof(KeyCode)).Cast<int>(),
+                            (name, value) => $"{name}:{value}"
+                        )
+                    )
+                );
 
             //读取保存的数据
             saveConfig = Tool.JsonToObject<SaveConfig>(File.ReadAllText($"{Mod.FullName}/config.json"));
-            //添加按键
+            //尝试添加按键
+            saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"{KeyCode.Mouse2}", KeyCode.Mouse2));
+            //尝试添加按键
+            saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"{KeyCode.F3}", KeyCode.F3));
+            //尝试添加按键
             saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"窗口按键", KeyCode.F2));
+            //保存配置文件
+            File.WriteAllText(ConfigPath, saveConfig.ToJson());
 
             // 初始化Harmony实例 这个对象的功能是把你编写的函数粘到目标函数上,当然覆盖目标函数也可以
             //参数是Harmony的编号,可以随便写,但是不能重复,如果你有多个补丁,可以把它们放在同一个Harmony实例上
@@ -95,20 +117,24 @@ namespace SevenDayKillModDevelopmentTemplate
             //游戏内的UI窗口
             //GameManager.Instance.m_GUIConsole.windowManager.playerUI.xui
 
-            //把你编写的函数注册到游戏更新事件上,每次游戏轮询都会调用这个函数
-            ModEvents.GameUpdate.RegisterHandler(叫什么名称都可以);
-
             //从配置文件中读取目标按键
             k1 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.Mouse2}").Value;
+            F3 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.F3}").Value;
             toggleWindowKey = saveConfig.config5.Find(d => d.Key == $"窗口按键").Value;
+            //注册游戏更新事件处理器
+            SetupGameUpdateHandler();
+            "mod加载完成".Log();
         }
 
+
         /// <summary>
+        /// 这是我们统一的游戏更新处理逻辑。
         /// 这个函数会一直执行,所以如果有些功能只需要偶尔执行需要添加执行条件.
-        /// 不要随便往这里面加东西,非常容易让游戏卡顿.
+        /// 不要随意往这个函数加东西,非常容易让游戏卡顿.
         /// </summary>
-        private void 叫什么名称都可以()
+        private void MyUniversalGameUpdateHandler()
         {
+            // 在这里编写你的游戏更新逻辑
             //是否按下了切换窗口的按键,如果不需要自定义窗口可以删除这个判断和相关代码
             if (Input.GetKey(toggleWindowKey))
             {
@@ -124,7 +150,7 @@ namespace SevenDayKillModDevelopmentTemplate
             }
 
             //判断是否按下该按键,按下时会一直执行
-            if (Input.GetKeyDown(k1))
+            if (Input.GetKeyDown(F3))
             {
                 //在控制台输出文本  这个只是例子,可以删除
                 "Hello World 111".Log();
@@ -138,8 +164,69 @@ namespace SevenDayKillModDevelopmentTemplate
                 "Hello World 222".Log();
                 //其他逻辑
             }
+        }
 
-            //逻辑...
+
+        /// <summary>
+        /// 使用反射注册游戏更新事件处理器,为了兼容不同版本的API,我使用了反射来注册这个处理器.
+        /// 这个函数的原理比较复杂,如果你不理解它的原理,请不要修改!
+        /// 如果你不是资深CSharp开发者,请不要随意修改这个函数!
+        /// </summary>
+        private void SetupGameUpdateHandler()
+        {
+            // 1.获取 ModEvents 类的 Type 对象
+            var modEventsType = typeof(ModEvents);
+            // 2.获取名为 "GameUpdate" 的字段
+            var gameUpdateField = modEventsType.GetField("GameUpdate", BindingFlags.Static | BindingFlags.Public);
+            // 3.获取该静态字段的值（即 ModEvent<SGameUpdateData> 的实例）
+            var gameUpdateInstance = gameUpdateField.GetValue(null);
+            // 4.从实例中获取其 Type
+            var gameUpdateInstanceType = gameUpdateInstance.GetType();
+            // 5. 从该类型中获取名为 "RegisterHandler" 的方法
+            var registerHandlerMethod = gameUpdateInstanceType.GetMethod("RegisterHandler");
+
+            // 尝试获取 v2.1+ 的 SGameUpdateData 类型
+            var sGameUpdateDataType = modEventsType.GetNestedType("SGameUpdateData");
+
+            Delegate handlerDelegate;
+
+            if (sGameUpdateDataType != null)
+            {
+                // --- v2.1 或更高版本 ---
+                // 我们检测到了 SGameUpdateData 类型的存在。
+                // 目标委托签名: void(ref SGameUpdateData)
+                "游戏版本为2.0以上".Log();
+
+                // 获取我们自己的、统一的处理方法
+                var myHandlerMethodInfo = typeof(ModTemplate).GetMethod(nameof(MyUniversalGameUpdateHandler), BindingFlags.Instance | BindingFlags.NonPublic);
+
+                // 使用表达式树在运行时动态创建一个适配器委托
+                // 表达式树将生成一个类似这样的lambda: (ref SGameUpdateData data) => this.MyUniversalGameUpdateHandler()
+
+                // 1. 定义委托的参数 (类型为 ref SGameUpdateData)
+                var delegateParam = Expression.Parameter(sGameUpdateDataType.MakeByRefType(), "data");
+
+                // 2. 创建对 this.MyUniversalGameUpdateHandler() 的调用
+                var methodCall = Expression.Call(Expression.Constant(this), myHandlerMethodInfo);
+
+                // 3. 获取委托的类型，例如 ModEventHandlerDelegate<SGameUpdateData>
+                var delegateType = registerHandlerMethod.GetParameters()[0].ParameterType;
+
+                // 4. 创建并编译Lambda表达式
+                var lambda = Expression.Lambda(delegateType, methodCall, delegateParam);
+                // 5. 编译并获取委托实例
+                handlerDelegate = lambda.Compile();
+            }
+            else
+            {
+                // --- v1.4 或更早版本 ---
+                // 未找到 SGameUpdateData 类型。
+                // 目标委托签名: void() (即 System.Action)
+                "游戏版本为2.0以下".Log();
+                handlerDelegate = (Action)MyUniversalGameUpdateHandler;
+            }
+            // 6. 调用 RegisterHandler 方法，传入我们创建的委托
+            registerHandlerMethod.Invoke(gameUpdateInstance, new object[] { handlerDelegate });
         }
 
     }

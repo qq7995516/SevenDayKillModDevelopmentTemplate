@@ -16,6 +16,12 @@ namespace SevenDayKillModDevelopmentTemplate
     /// </summary>
     public static class Tool
     {
+
+        #region 推送xml游戏配置
+
+        #endregion
+
+
         #region 窗口
         /// <summary>
         /// 自定义窗口
