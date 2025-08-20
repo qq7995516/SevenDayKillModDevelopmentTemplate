@@ -55,9 +55,9 @@ namespace SevenDayKillModDevelopmentTemplate
         private KeyCode F3;
 
         /// <summary>
-        /// 用于存放自定义窗口的对象,如果不需要自定义窗口可以删除这个变量和相关代码
+        /// 存储窗口ID
         /// </summary>
-        private Tool.MyCustomWindow myPopupWindow;
+        public const string MyModWindowId = "MyCustomModWindow";
         /// <summary>
         /// 显示自定义窗口的按键,如果不需要自定义窗口可以删除这个变量和相关代码
         /// </summary>
@@ -65,7 +65,7 @@ namespace SevenDayKillModDevelopmentTemplate
         /// <summary>
         /// 窗口标题
         /// </summary>
-        public string title = "自定义窗口";
+        public static string title = "自定义窗口";
 
         /// <summary>
         /// Mod初始化函数,在游戏加载时调用,该函数只会被调用一次,必须要有该函数,且函数名以及函数签名不能更改
@@ -134,19 +134,37 @@ namespace SevenDayKillModDevelopmentTemplate
         /// </summary>
         private void MyUniversalGameUpdateHandler()
         {
+            // 确保游戏世界和玩家已经加载完成，避免空引用
+            if (GameManager.Instance?.World?.GetPrimaryPlayer() == null)
+            {
+                return;
+            }
+
             // 在这里编写你的游戏更新逻辑
             //是否按下了切换窗口的按键,如果不需要自定义窗口可以删除这个判断和相关代码
-            if (Input.GetKey(toggleWindowKey))
+            if (Input.GetKeyDown(toggleWindowKey))
             {
-                //如果窗口不存在,则创建一个新的窗口
-                if (myPopupWindow == null)
+                var windowManager = GameManager.Instance.m_GUIConsole.windowManager;
+
+                // 检查窗口是否已经打开
+                if (windowManager.IsWindowOpen(MyModWindowId))
                 {
-                    myPopupWindow = new Tool.MyCustomWindow(title: title);
-                    myPopupWindow.IsVisible = true;
+                    // 如果已打开，则关闭它
+                    windowManager.Close(MyModWindowId);
                 }
                 else
-                    //显示或隐藏窗口
-                    myPopupWindow.IsVisible = !myPopupWindow.IsVisible;
+                {
+                    // 如果未打开，则打开它
+                    // 首先检查窗口是否已注册，如果没有则先注册
+                    if (!windowManager.HasWindow(MyModWindowId))
+                    {
+                        var newWindow = new MyCustomWindow(MyModWindowId, title);
+                        windowManager.Add(MyModWindowId, newWindow);
+                    }
+
+                    // 打开窗口。参数：窗口ID, 是否锁定光标, 是否暂停游戏, 是否显示光标
+                    windowManager.Open(MyModWindowId, true, false, true);
+                }
             }
 
             //判断是否按下该按键,按下时会一直执行
@@ -174,6 +192,7 @@ namespace SevenDayKillModDevelopmentTemplate
         /// </summary>
         private void SetupGameUpdateHandler()
         {
+
             // 1.获取 ModEvents 类的 Type 对象
             var modEventsType = typeof(ModEvents);
             // 2.获取名为 "GameUpdate" 的字段

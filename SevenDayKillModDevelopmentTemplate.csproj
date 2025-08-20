@@ -101,10 +101,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModTemplate.cs" />
+    <Compile Include="MyCustomWindow.cs" />
     <Compile Include="PatchType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveConfig.cs" />
     <Compile Include="Tool.cs" />
+    <Compile Include="UIHelpers.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
