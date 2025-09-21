@@ -15,23 +15,27 @@ namespace SevenDayKillModDevelopmentTemplate
         /// <summary>
         /// 用于存放Bool类型
         /// </summary>
-        public List<MyKV<string, bool>> config1 = new List<MyKV<string, bool>>() { };
+        public List<MyKV<string, bool>> Config_Bool = new List<MyKV<string, bool>>() { };
         /// <summary>
         /// 用于存放int类型
         /// </summary>
-        public List<MyKV<string, int>> config2 = new List<MyKV<string, int>>() { };
+        public List<MyKV<string, int>> Config_Int = new List<MyKV<string, int>>() { };
         /// <summary>
         /// 用于存放string类型
         /// </summary>
-        public List<MyKV<string, string>> config3 = new List<MyKV<string, string>>() { };
+        public List<MyKV<string, string>> Config_String = new List<MyKV<string, string>>() { };
         /// <summary>
         /// 用于存放float类型
         /// </summary>
-        public List<MyKV<string, double>> config4 = new List<MyKV<string, double>>() { };
+        public List<MyKV<string, float>> Config_Float = new List<MyKV<string, float>>() { };
+        /// <summary>
+        /// 用于存放double类型
+        /// </summary>
+        public List<MyKV<string, double>> Config_Double = new List<MyKV<string, double>>() { };
         /// <summary>
         /// 用于存放KeyCode类型   也就是按键,当然可以直接存放int类型,但是这样不方便查看,何必节省那几个字节折磨自己呢.
         /// </summary>
-        public List<MyKV<string, KeyCode>> config5 = new List<MyKV<string, KeyCode>>() { };
+        public List<MyKV<string, KeyCode>> KeyCode = new List<MyKV<string, KeyCode>>() { };
     }
 
     /// <summary>

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using static ModEvents;
+using static UnityEngine.UI.CanvasScaler;
 
 //编写好代码之后点击生成->重新生成解决方案,然后再打开项目文件所在的文件夹,
 
@@ -46,14 +47,18 @@ namespace SevenDayKillModDevelopmentTemplate
         /// </summary>
         public static SaveConfig saveConfig = null;
         /// <summary>
-        /// 临时按键
+        /// 缓存按键列表,方便调用
         /// </summary>
-        private KeyCode k1;
-        /// <summary>
-        /// 临时按键
-        /// </summary>
-        private KeyCode F3;
+        public List<MyKV<string, bool>> Config_Bool = null;
+        public List<MyKV<string, int>> Config_Int = null;
+        public List<MyKV<string, string>> Config_String = null;
+        public List<MyKV<string, float>> Config_Float = null;
+        public List<MyKV<string, double>> Config_Double = null;
+        public List<MyKV<string, KeyCode>> Config_KeyCode = null;
 
+
+
+        public static Harmony harmony = null;
         /// <summary>
         /// 存储窗口ID
         /// </summary>
@@ -73,6 +78,37 @@ namespace SevenDayKillModDevelopmentTemplate
         /// <param name="_modInstance"></param>
         void IModApi.InitMod(Mod _modInstance)
         {
+            //游戏内的UI窗口
+            //GameManager.Instance.m_GUIConsole.windowManager.playerUI.xui
+
+            //执行初始化
+            Init();
+            "mod加载完成".Log();
+        }
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        public void Init()
+        {
+            //创建配置文件
+            CreatrConfigFile();
+            //读取配置文件
+            ReadConfig();
+            //应用补丁
+            CreatrAndApplyPatch(harmony);
+            //添加并读取配置项
+            AddAndReadKey();
+            //注册游戏更新事件
+            SetupGameUpdateHandler();
+            //ModEvents.GameUpdate.RegisterHandler((ref ModEvents.SGameUpdateData _) => MyUniversalGameUpdateHandler());
+            //ModEvents.GameUpdate.RegisterHandler(new Action(this.OnGameUpdate));
+        }
+        /// <summary>
+        /// 创建配置文件
+        /// </summary>
+        public void CreatrConfigFile()
+        {
             //尝试创建配置文件
             ConfigPath.TryCreateAndWriteFile(Tool.ToJson(new SaveConfig()));
             //尝试创建键位参考文件
@@ -85,21 +121,32 @@ namespace SevenDayKillModDevelopmentTemplate
                         )
                     )
                 );
+        }
 
+        /// <summary>
+        /// 读取配置文件
+        /// </summary>
+        public void ReadConfig()
+        {
             //读取保存的数据
             saveConfig = Tool.JsonToObject<SaveConfig>(File.ReadAllText($"{Mod.FullName}/config.json"));
-            //尝试添加按键
-            saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"{KeyCode.Mouse2}", KeyCode.Mouse2));
-            //尝试添加按键
-            saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"{KeyCode.F3}", KeyCode.F3));
-            //尝试添加按键
-            saveConfig.config5.TryAddItem(new MyKV<string, KeyCode>($"窗口按键", KeyCode.F2));
-            //保存配置文件
-            File.WriteAllText(ConfigPath, saveConfig.ToJson());
+            Config_Bool = saveConfig.Config_Bool;
+            Config_Int = saveConfig.Config_Int;
+            Config_String = saveConfig.Config_String;
+            Config_Float = saveConfig.Config_Float;
+            Config_Double = saveConfig.Config_Double;
+            Config_KeyCode = saveConfig.KeyCode;
+        }
 
+        /// <summary>
+        /// 创建并应用补丁
+        /// </summary>
+        /// <param name="harmony"></param>
+        public void CreatrAndApplyPatch(Harmony harmony)
+        {
             // 初始化Harmony实例 这个对象的功能是把你编写的函数粘到目标函数上,当然覆盖目标函数也可以
             //参数是Harmony的编号,可以随便写,但是不能重复,如果你有多个补丁,可以把它们放在同一个Harmony实例上
-            var harmony = new Harmony(Path.GetRandomFileName());
+            harmony = new Harmony(Path.GetRandomFileName());
 
             //应用补丁
             //前置    原函数执行前就执行,如果你的函数返回了false,则不执行原函数,也就是覆盖
@@ -113,19 +160,7 @@ namespace SevenDayKillModDevelopmentTemplate
             //harmony.Patch(typeof(目标函数所在的类).GetMethod("目标函数"),
             //   postfix: new HarmonyMethod(typeof(PatchType), nameof(PatchType)));
             //说明例子,同上
-
-            //游戏内的UI窗口
-            //GameManager.Instance.m_GUIConsole.windowManager.playerUI.xui
-
-            //从配置文件中读取目标按键
-            k1 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.Mouse2}").Value;
-            F3 = saveConfig.config5.Find(d => d.Key == $"{KeyCode.F3}").Value;
-            toggleWindowKey = saveConfig.config5.Find(d => d.Key == $"窗口按键").Value;
-            //注册游戏更新事件处理器
-            SetupGameUpdateHandler();
-            "mod加载完成".Log();
         }
-
 
         /// <summary>
         /// 这是我们统一的游戏更新处理逻辑。
@@ -168,7 +203,7 @@ namespace SevenDayKillModDevelopmentTemplate
             }
 
             //判断是否按下该按键,按下时会一直执行
-            if (Input.GetKeyDown(F3))
+            if (Input.GetKeyDown(临时按键2))
             {
                 //在控制台输出文本  这个只是例子,可以删除
                 "Hello World 111".Log();
@@ -176,7 +211,7 @@ namespace SevenDayKillModDevelopmentTemplate
             }
 
             //按下时执行,只执行1次
-            if (Input.GetKey(k1))
+            if (Input.GetKey(临时按键1))
             {
                 //在控制台输出文本  这个只是例子,可以删除
                 "Hello World 222".Log();
@@ -248,5 +283,31 @@ namespace SevenDayKillModDevelopmentTemplate
             registerHandlerMethod.Invoke(gameUpdateInstance, new object[] { handlerDelegate });
         }
 
+        //按键列表放在这里,方便管理
+        /// <summary>
+        /// 临时按键
+        /// </summary>
+        private KeyCode 临时按键1;
+        /// <summary>
+        /// 临时按键
+        /// </summary>
+        private KeyCode 临时按键2;
+        private KeyCode 窗口开关键;
+
+        /// <summary>
+        /// 添加配置项到配置文件，并立即读取其值
+        /// </summary>
+        public void AddAndReadKey()
+        {
+            //尝试添加且获取按键
+            临时按键1 = Config_KeyCode.GetValueOrAdd(nameof(临时按键1), KeyCode.Mouse2);
+            // 
+            临时按键2 = Config_KeyCode.GetValueOrAdd(nameof(临时按键2), KeyCode.F3);
+            // 
+            窗口开关键 = Config_KeyCode.GetValueOrAdd(nameof(窗口开关键), KeyCode.F2);
+
+            //保存配置文件
+            File.WriteAllText(ConfigPath, saveConfig.ToJson());
+        }
     }
 }

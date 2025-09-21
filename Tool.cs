@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace SevenDayKillModDevelopmentTemplate
     public static class Tool
     {
 
-        #region 推送xml游戏配置
+        #region 推送xml游戏配置(还没开发完成)
 
         #endregion
 
@@ -69,6 +70,41 @@ namespace SevenDayKillModDevelopmentTemplate
                 return false;
             myKeyValues.Add(new MyKV<string, T>(myKeyValue.Key, myKeyValue.Value));
             return true;
+        }
+
+        /// <summary>
+        /// 从列表中获取与指定键关联的值。如果键不存在，则使用默认值创建一个新项，将其添加到列表，并返回该默认值。
+        /// </summary>
+        /// <typeparam name="T">值的类型。</typeparam>
+        /// <param name="myKeyValues">要操作的键值对列表。</param>
+        /// <param name="key">要查找的键。</param>
+        /// <param name="defaultValue">如果键不存在，要添加并返回的默认值。</param>
+        /// <returns>列表中存在的或新添加的值。</returns>
+        public static T GetValueOrAdd<T>(this List<MyKV<string, T>> myKeyValues, string key, T defaultValue)
+        {
+            // 使用 string.IsNullOrEmpty 进行更健壮的检查
+            if (string.IsNullOrEmpty(key))
+            {
+                // 对于无效的键，可以考虑记录一个警告或直接返回默认值
+                return defaultValue;
+            }
+
+            // 使用 Find 方法一次性查找，比 Any() + First() 更高效
+            var existingItem = myKeyValues.Find(kv => kv.Key == key);
+
+            if (existingItem != null)
+            {
+                // --- 关键修正 ---
+                // 找到了！返回从配置文件中读取到的现有值。
+                return existingItem.Value;
+            }
+            else
+            {
+                // 没找到，添加新的默认配置项。
+                myKeyValues.Add(new MyKV<string, T>(key, defaultValue));
+                // 并返回这个刚添加的默认值。
+                return defaultValue;
+            }
         }
 
         /// <summary>
@@ -252,6 +288,18 @@ namespace SevenDayKillModDevelopmentTemplate
             if (field == null)
                 return default;
             return (T)field.GetValue(obj);
+        }
+
+        /// <summary>
+        /// 判断程序集是否存在某个类型
+        /// </summary>
+        /// <param name="assembly">程序集</param>
+        /// <param name="typeName">类型名称</param>
+        /// <returns></returns>
+        public static bool HasType(this Assembly assembly, string typeName)
+        {
+            var tps = assembly?.GetTypes();
+            return tps.Any(d => d.Name == typeName);
         }
 
         #endregion
